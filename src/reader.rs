@@ -2,12 +2,12 @@
 //
 // Read source code from a file
 
-pub type Source = ();
-pub type Error = ();
+pub struct Source { }
+pub type  Error = ();
 
 pub fn read_source(filename: &str) -> Result<Source, Error>{
     println!("Reading source");
-    Ok(())
+    Ok(Source {  })
 }
 
 #[cfg(test)]

@@ -2,12 +2,12 @@
 
 use crate::reader::Source;
 
-pub type Tokens = ();
+pub struct  Tokens { }
 pub type Error = ();
 
 pub fn tokenize(source :Source) -> Result<Tokens, Error> {
     println!("Tokenizing");
-    Ok(())
+    Ok(Tokens {  })
 }
 
 #[cfg(test)]
