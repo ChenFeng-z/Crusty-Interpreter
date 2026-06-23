@@ -3,9 +3,11 @@
 use crate::tokenize::Tokens;
 
 pub type AST = ();
+pub type Error = ();
 
-pub fn parse(tokens:Tokens) -> AST {
+pub fn parse(tokens:Tokens) -> Result<AST, Error> {
     println!("Parsing");
+    Ok(())
 }
 
 #[cfg(test)]
