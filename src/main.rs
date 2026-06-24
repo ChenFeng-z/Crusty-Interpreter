@@ -1,6 +1,8 @@
 // I'm going to initially break the project into four parts.
 // Each in their own file.
 
+use crate::reader::Source;
+
 mod reader;
 mod tokenize;
 mod parser;
@@ -38,20 +40,37 @@ impl From<evaluate::Error> for Error {
     }
 }
 
-fn run() -> Result<(), Error> {
-    let source = reader::read_source("somefile.lox")?;
+fn run (source: reader::Source) -> Result<(), Error> {
     let tokens = tokenize::tokenize(source)?;
     let ast = parser::parse(tokens)?;
     let out = evaluate::evaluate(ast)?;
     Ok(())
 }
 
+fn run_file(filename: &str) -> Result<(), Error> {
+    let source = reader::read_source(filename)?;
+    run(source)
+}
+
+fn run_prompt(){
+    todo!()
+}
+
 fn main() {
     println!("Hello, Lox!");
-    match run() {
-        Ok(_) => {println!("Success!")},
-        Err(e) => {println!("Failed {e:?}")},
+
+    let args : Vec<String> = std::env::args().collect();
+    if args.len() == 1{
+        run_prompt();
+    } else if args.len() == 2{
+        match run_file(&args[1]) {
+            Ok(_) => {println!("Success!")},
+            Err(e) => {eprintln!("Failed! {e:?}")},
+        }
+    } else {
+        eprintln!("Usage: lox [filename]");
     }
+    
     
     
 }
