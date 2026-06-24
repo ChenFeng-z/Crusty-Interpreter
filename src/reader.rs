@@ -3,7 +3,8 @@
 // Read source code from a file
 
 pub struct Source { }
-pub type  Error = ();
+#[derive(Debug)]
+pub struct  Error { }
 
 pub fn read_source(filename: &str) -> Result<Source, Error>{
     println!("Reading source");

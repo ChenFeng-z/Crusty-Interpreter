@@ -6,7 +6,37 @@ mod tokenize;
 mod parser;
 mod evaluate;
 
-type Error = ();
+#[derive(Debug)]
+enum Error {
+    Read(reader::Error),
+    Tokenize(tokenize::Error),
+    Parse(parser::Error),
+    Evaluate(evaluate::Error),
+}
+
+impl From<reader::Error> for Error {
+    fn from(e: reader::Error) -> Error {
+        Error::Read(e)
+    }
+}
+
+impl From<tokenize::Error> for Error {
+    fn from(e: tokenize::Error) -> Error {
+        Error::Tokenize(e)
+    }
+}
+
+impl From<parser::Error> for Error {
+    fn from(e: parser::Error) -> Error {
+        Error::Parse(e)
+    }
+}
+
+impl From<evaluate::Error> for Error {
+    fn from(e: evaluate::Error) -> Error {
+        Error::Evaluate(e)
+    }
+}
 
 fn run() -> Result<(), Error> {
     let source = reader::read_source("somefile.lox")?;
