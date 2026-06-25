@@ -1,6 +1,8 @@
 // I'm going to initially break the project into four parts.
 // Each in their own file.
 
+use std::io::{Stdout, Write, stdout};
+
 use crate::reader::Source;
 
 mod reader;
@@ -49,12 +51,28 @@ fn run (source: reader::Source) -> Result<(), Error> {
 
 fn run_file(filename: &str) -> Result<(), Error> {
     let source = reader::read_source(filename)?;
-    println!("{}", &source.contents);
     run(source)
 }
 
 fn run_prompt(){
-    todo!()
+    use std::io::Write;
+    // Need to read from stdin. Create a Source object and
+    // pass to run
+    let mut stdout = std::io::stdout();
+    let stdin = std::io::stdin(); 
+    loop {
+        stdout.write(b"> ").unwrap();
+        stdout.flush().unwrap();
+        let mut buffer = String::new();
+        stdin.read_line(&mut buffer).unwrap();
+        let source = reader::Source { contents: buffer};
+        match run(source) {
+            Ok(_) => { },
+            Err(e) =>{
+                println!("{e:?}");
+            }
+        }
+    }
 }
 
 fn main() {
