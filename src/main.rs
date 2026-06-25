@@ -49,6 +49,7 @@ fn run (source: reader::Source) -> Result<(), Error> {
 
 fn run_file(filename: &str) -> Result<(), Error> {
     let source = reader::read_source(filename)?;
+    println!("{}", &source.contents);
     run(source)
 }
 
