@@ -159,6 +159,38 @@ impl Scanner {
             '+' => self.add_token(TokenType::TPlus),
             ';' => self.add_token(TokenType::TSemiColon),
             '*' => self.add_token(TokenType::TStar),
+            '!' => {
+                let toktype = if self.matches('=') {
+                    TokenType::TBangEqual
+                } else {
+                    TokenType::TBang
+                };
+                self.add_token(toktype);
+            },
+            '=' => {
+                let toktype = if self.matches('=') {
+                    TokenType::TEqualEqual
+                } else {
+                    TokenType::TEqual
+                };
+                self.add_token(toktype);
+            },
+            '<' => {
+                let toktype = if self.matches('=') {
+                    TokenType::TLessEqual
+                } else {
+                    TokenType::TLess
+                };
+                self.add_token(toktype);
+            },
+            '>' => {
+                let toktype = if self.matches('=') {
+                    TokenType::TGreaterEqual
+                } else {
+                    TokenType::TGreater
+                };
+                self.add_token(toktype);
+            },
             _ => todo!()
         }
     }
@@ -197,6 +229,19 @@ mod tests {
                 Token::new(TokenType::TEqual, "=", Literal::None, 1),
                 Token::new(TokenType::TSemiColon, ";", Literal::None, 1),
                 Token::new(TokenType::TStar, "*", Literal::None, 1),
+                Token::new(TokenType::TEof, "", Literal::None, 1)
+            ]
+        );
+    }
+    fn tow_characters(){
+        let mut scanner = Scanner::new("!= == <= >= ");
+        let tokens = scanner.scan_tokens();
+        assert_eq!(tokens.unwrap().tokens,
+            vec![
+                Token::new(TokenType::TBangEqual, "!=", Literal::None, 1),
+                Token::new(TokenType::TEqualEqual, "==", Literal::None, 1),
+                Token::new(TokenType::TLessEqual, "<=", Literal::None, 1),
+                Token::new(TokenType::TGreaterEqual, ">=", Literal::None,   1),
                 Token::new(TokenType::TEof, "", Literal::None, 1)
             ]
         );
