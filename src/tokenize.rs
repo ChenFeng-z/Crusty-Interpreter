@@ -209,8 +209,37 @@ impl Scanner {
                     self.add_token(TokenType::TSlash);
                 }
             },
+            ' ' | '\r' | '\t' => {
+                // 忽略空白字符
+            },
+            '\n' => {
+                self.line += 1;
+            },
+            '"' => {
+                self.string();
+            }
             _ => todo!()
         }
+    }
+    fn string(&mut self) {
+        while self.peek() != '"' && !self.is_at_end() {
+            if self.peek() == '\n' {
+                self.line += 1;
+            }
+            self.advance();
+        }
+
+        if self.is_at_end() {
+            // 错误处理：未闭合的字符串
+            return;
+        }
+
+        // 消耗掉结尾的引号
+        self.advance();
+
+        // 截取字符串内容
+        let value: String = self.source[self.start + 1..self.current - 1].iter().collect();
+        self.add_token_literal(TokenType::TString, Literal::String(value));
     }
 }
 
