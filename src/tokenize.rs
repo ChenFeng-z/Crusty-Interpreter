@@ -57,6 +57,12 @@ pub enum TokenType {
 #[allow(unused_imports)]
 use TokenType::*;
 
+pub enum Literal {
+    String(String),
+    Number(f64),
+    None,
+}
+
 #[derive(Debug, Clone)]
 pub struct Token {
     pub tokentype: TokenType,
@@ -66,10 +72,10 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(tokentype: TokenType, lexeme: &str, literal: Literal, line: usize) -> Token {
+    pub fn new(tokentype: TokenType, lexeme: impl Into<String>, literal: Literal, line: usize) -> Token {
         Token {
             tokentype,
-            lexeme: String::from(lexeme),
+            lexeme: lexeme.into(),
             literal,
             line,
         }
@@ -107,17 +113,43 @@ impl Scanner {
         self.current >= self.source.len()
     }
 
-    fn scan_tokens(mut self) -> Tokens {
+    fn scan_tokens(mut self) -> Result<Tokens, Error> {
         while !self.is_at_end() {
             self.start = self.current;
             self.scan_token();
         }
         self.tokens.push(Token::new(TokenType::TEof, "", Literal::None, self.line));
-        Tokens { tokens: self.tokens }
+        Ok(Tokens { tokens: self.tokens })
+    }
+    fn advance(&mut self) -> char {
+        let c = self.source[self.current];
+        self.current += 1;
+        c
+    }
+
+    fn add_token(&mut self, toktype: TokenType) {
+        self.add_token_literal(toktype, Literal::None);
+    }
+
+    fn add_token_literal(&mut self, toktype: TokenType, literal: Literal) {
+        let text: String = self.source[self.start..self.current].iter().collect();
+        self.tokens.push(Token::new(toktype, text, literal, self.line));
     }
 
     fn scan_token(&mut self) {
-        todo!()
+        match self.advance() {
+            '(' => self.add_token(TokenType::TLeftParen),
+            ')' => self.add_token(TokenType::TRightParen),
+            '{' => self.add_token(TokenType::TLeftBrace),
+            '}' => self.add_token(TokenType::TRightBrace),
+            ',' => self.add_token(TokenType::TComma),
+            '.' => self.add_token(TokenType::TDot),
+            '-' => self.add_token(TokenType::TMinus),
+            '+' => self.add_token(TokenType::TPlus),
+            ';' => self.add_token(TokenType::TSemiColon),
+            '*' => self.add_token(TokenType::TStar),
+            _ => todo!()
+        }
     }
 }
 
@@ -127,7 +159,7 @@ pub fn tokenize(source: Source) -> Result<Tokens, Error> {
     // 创建扫描器并运行
     let scanner = Scanner::new(&source.contents);
     let tokens = scanner.scan_tokens();
-    Ok(tokens)
+    Ok(Tokens {tokens})
 }
 
 #[cfg(test)]
