@@ -63,7 +63,7 @@ pub enum Literal {
     None,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq)]
 pub struct Token {
     pub tokentype: TokenType,
     pub lexeme: String,
@@ -82,12 +82,12 @@ impl Token {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Tokens { 
     pub tokens: Vec<Token>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Error {}
 
 struct Scanner {
@@ -125,6 +125,17 @@ impl Scanner {
         let c = self.source[self.current];
         self.current += 1;
         c
+    }
+
+    fn matches(&mut self, expect:char) -> bool{
+        if self.is_at_end() {
+            return false;
+        }
+        if self.source[self.current] != expect {
+            return false;
+        }
+        self.current += 1;
+        true
     }
 
     fn add_token(&mut self, toktype: TokenType) {
@@ -169,5 +180,25 @@ mod tests {
     #[test]
     fn its_alive() {
         assert_eq!(true, true);
+    }
+    #[test]
+    fn single_character(){
+        let mut source = Scanner::new("(){},.-=;*");
+        let tokens = source.scan_tokens();
+        assert_eq!(tokens.unwrap().tokens,
+            vec![
+                Token::new(TokenType::TLeftParen, "(", Literal::None, 1),
+                Token::new(TokenType::TRightParen, ")", Literal::None, 1),
+                Token::new(TokenType::TLeftBrace, "{", Literal::None, 1),
+                Token::new(TokenType::TRightBrace, "}", Literal::None, 1),
+                Token::new(TokenType::TComma, ",", Literal::None, 1),
+                Token::new(TokenType::TDot, ".", Literal::None, 1),
+                Token::new(TokenType::TMinus, "-", Literal::None, 1),
+                Token::new(TokenType::TEqual, "=", Literal::None, 1),
+                Token::new(TokenType::TSemiColon, ";", Literal::None, 1),
+                Token::new(TokenType::TStar, "*", Literal::None, 1),
+                Token::new(TokenType::TEof, "", Literal::None, 1)
+            ]
+        );
     }
 }
