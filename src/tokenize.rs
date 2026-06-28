@@ -138,6 +138,14 @@ impl Scanner {
         true
     }
 
+    fn peek(&self) -> char{
+        if self.is_at_end() {
+            '\x00'
+        } else {
+            self.source[self.current]
+        }
+    }
+
     fn add_token(&mut self, toktype: TokenType) {
         self.add_token_literal(toktype, Literal::None);
     }
@@ -191,6 +199,16 @@ impl Scanner {
                 };
                 self.add_token(toktype);
             },
+            '/' => {
+                if self.matches('/') {
+                    // 注释，跳过直到行尾
+                    while self.peek() != '\n' && !self.is_at_end() {
+                        self.advance();
+                    }
+                } else {
+                    self.add_token(TokenType::TSlash);
+                }
+            },
             _ => todo!()
         }
     }
@@ -233,7 +251,7 @@ mod tests {
             ]
         );
     }
-    fn tow_characters(){
+    fn two_characters(){
         let mut scanner = Scanner::new("!= == <= >= ");
         let tokens = scanner.scan_tokens();
         assert_eq!(tokens.unwrap().tokens,
