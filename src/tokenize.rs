@@ -56,7 +56,7 @@ pub enum TokenType {
 // 允许在当前文件直接使用 TLeftParen 等，不用每次都写 TokenType::
 #[allow(unused_imports)]
 use TokenType::*;
-
+#[derive(Debug, PartialEq, Clone)]
 pub enum Literal {
     String(String),
     Number(f64),
@@ -217,6 +217,9 @@ impl Scanner {
             },
             '"' => {
                 self.string();
+            },
+            c if c.is_digit(10) => {
+                self.number();
             }
             _ => todo!()
         }
@@ -241,6 +244,9 @@ impl Scanner {
         let value: String = self.source[self.start + 1..self.current - 1].iter().collect();
         self.add_token_literal(TokenType::TString, Literal::String(value));
     }
+    fn number(&mut self) {
+        todo!();
+    }
 }
 
 // 💡 串联驱动函数：把读到的 source 真正喂给你的 Scanner
@@ -248,8 +254,8 @@ pub fn tokenize(source: Source) -> Result<Tokens, Error> {
     println!("Tokenizing");
     // 创建扫描器并运行
     let scanner = Scanner::new(&source.contents);
-    let tokens = scanner.scan_tokens();
-    Ok(Tokens {tokens})
+    scanner.scan_tokens()
+    
 }
 
 #[cfg(test)]
